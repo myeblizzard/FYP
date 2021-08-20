@@ -1,13 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-
-namespace QR_Menu_Designer
-{
-    public partial class ViewMenu : System.Web.UI.Pageusing System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -99,13 +90,5 @@ namespace QR_Menu_Designer
                 }
             }
         }
-    }
-}
-    {
-        protected void Page_Load(object sender, EventArgs e)
-        {
-
-        }
-        
     }
 }
