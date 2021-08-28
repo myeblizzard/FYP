@@ -6,14 +6,17 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
     <title>Input Details 1</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>
     <script src='https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js'></script>  
     <script src="https://kit.fontawesome.com/6eb49a722e.js" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="preconnect" href="https://fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css2?family=Baloo+Tammudu+2&family=Permanent+Marker&family=Roboto+Condensed&family=Roboto+Condensed:wght@300&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+Tammudu+2&family=Permanent+Marker&family=Roboto+Condensed&family=Roboto+Condensed:wght@300&display=swap" rel="stylesheet" />
     <style>
+        .i-afu {
+            display: none;
+        }
         h2{
             color: #2F8D46;
         }
@@ -304,7 +307,7 @@
         </div>
         <div class="m-nav p-2" style="width: 18%"></div>
         <asp:ScriptManager ID="ScriptManager1" runat="server" ></asp:ScriptManager>
-        <%--<asp:AsyncFileUpload ID="AsyncFileUpload1" ThrobberID="ImageUpload" runat="server" />--%>
+        <asp:AsyncFileUpload ID="AsyncFileUpload1" CssClass="i-afu" runat="server" OnClientUploadComplete="uploadComplete" OnUploadedComplete="AsyncFileUpload1_UploadedComplete" />
         <div class="i-form">
             <div class="bs-example">
                 <div id="form">
@@ -313,12 +316,12 @@
                     </div> <br />
                     <fieldset>
                         <div class="i-title">What is the name of your workplace?</div>
-                                <div runat="server" id="divWorkplace" class="d-flex">
-                                    <div class="mr-auto"><asp:Label ID="lblWorkplace" CssClass="col-form-label-sm i-workplace" runat="server"></asp:Label></div>
-                                    <div class="">
-                                        <asp:LinkButton ID="btnEditWorkplace" runat="server" OnClick="EditWorkplace"><i class="far fa-edit"></i></asp:LinkButton>
-                                    </div>
-                                </div>
+                        <div runat="server" id="divWorkplace" class="d-flex">
+                            <div class="mr-auto"><asp:Label ID="lblWorkplace" CssClass="col-form-label-sm i-workplace" runat="server"></asp:Label></div>
+                            <div class="">
+                                <asp:LinkButton ID="btnEditWorkplace" runat="server" OnClick="EditWorkplace"><i class="far fa-edit"></i></asp:LinkButton>
+                            </div>
+                        </div>
                         <div class="form-group" style="height: 12vh">
                             <label id="lblWorkplaceHeader" runat="server" class="col-form-label-sm" for="workplace">Name</label>
                             <input type="text" class="form-control form-control-sm" id="inputWorkplace" placeholder="Eg: Hainanese Chicken Rice" runat="server" form="form1" />
@@ -381,10 +384,10 @@
                     <fieldset>
                         <asp:UpdatePanel ID="updatePanel2" runat="server" UpdateMode="Conditional">
                             <ContentTemplate>
-                                    <%--<asp:Timer ID="Timer1" runat="server" OnTick="Timer1_Tick" Interval="1000"></asp:Timer>--%>
+                                    <%--<asp:Timer ID="Timer1" runat="server" OnTick="Timer1_Tick" Interval="1000"></asp:Timer> OnItemDataBound="rptCategory_ItemDataBound"--%>
                                 <div class="i-title">What are the items that you provide?</div>
                                 <div class="table-wrapper-scroll-y my-custom-scrollbar">
-                                    <asp:Repeater ID="RptItems" runat="server" OnItemCommand="RpItem" >  
+                                    <asp:Repeater ID="RptItems" runat="server" OnItemCommand="RpItem">  
                                         <HeaderTemplate>  
                                             <table class="table table-striped table-bordered">  
                                                 <tr>  
@@ -413,7 +416,8 @@
                                                     <asp:Label CssClass="" ID="lblPrice" Text='<%#Eval("Price") %>' runat="server"></asp:Label>
                                                 </td>
                                                 <td>
-                                                    <asp:Label CssClass="" ID="lblImage" Text='<%#Eval("ItemImage") %>' runat="server"></asp:Label>
+                                                    <img src='<%# PicturePath(sPath = "" + Eval("ItemImage") + "")%>' style="width: 50px; height: 50px" id="imgItemDisplay" alt="" runat="server" />
+                                                    <%--<asp:Label CssClass="" ID="lblImage" Text='<%#Eval("ItemImage") %>' runat="server"></asp:Label>--%>
                                                 </td>
                                                 <td>
                                                     <%--<button onclick='<%# String.Format("javascript:return EditCategory(\"{0}\", \"{1}\")", Eval("ItemName").ToString(), Eval("Price").ToString()) %>'>
@@ -447,8 +451,8 @@
                             </div>
                             <div class="">
                                 <div class="i-fu-div">
-                                    <p><img class="i-img-preview" id="imgItem" /></p>
-                                    <i class="fa fa-camera i-upload-icon"></i>
+                                    <p><img src="" class="i-img-preview" id="imgItem" alt="" runat="server" /></p>
+                                    <i class="fa fa-camera i-upload-icon" onclick="document.getElementById('<%=AsyncFileUpload1.ClientID %>_ctl02').click();" ></i>
                                 </div>
                             </div>
                         </div>
@@ -469,6 +473,10 @@
     </form>
 </body>
 <script>
+    function uploadComplete(sender, args) {
+        var filename = args.get_fileName();
+        $get("imgItem").src = "uploaded/" + filename;
+    }
 
     var prm = Sys.WebForms.PageRequestManager.getInstance();
     prm.add_beginRequest(beginRequest);
@@ -509,38 +517,47 @@
         document.getElementById('oldCategory').value = oldCategory;
         document.getElementById('inputCategory').value = oldCategory;
         console.log(oldCategory);
-        document.getElementById("btnCategoryNext").style.display = "none";
-        document.getElementById("btnAddCategory").style.display = "none";
-        document.getElementById("btnUpdateCategory").style.display = "initial";
+        document.getElementById('btnCategoryNext').style.display = 'none';
+        document.getElementById('btnAddCategory').style.display = 'none';
+        document.getElementById('btnUpdateCategory').style.display = 'initial';
     }
 
     function EditItem(item, price) {
         oldItem = item;
         oldPrice = price;
+        //var btnSubmit = document.getElementById('btnSubmit').style.display;
         document.getElementById('oldItem').value = oldItem;
         document.getElementById('inputItemName').value = oldItem;
         document.getElementById('inputPrice').value = oldPrice;
         console.log(oldItem);
         console.log(oldPrice);
-        document.getElementById("btnSubmit").style.display = "none";
-        document.getElementById("btnAddItem").style.display = "none";
-        document.getElementById("btnUpdateItem").style.display = "initial";
+        //if (btnSubmit == 'initial') {
+        //    btnSubmit.style.display = 'none';
+        //}
+        document.getElementById('btnSubmit').style.display = 'none';
+        document.getElementById('btnAddItem').style.display = 'none';
+        document.getElementById('btnUpdateItem').style.display = 'initial';
     }
     $(".i-btn-category").click(function () {
         var newCategory = document.getElementById('inputCategory').value;
-        if (newCategory && oldCategory != newCategory) {
-            document.getElementById("btnCategoryNext").style.display = "initial";
-            document.getElementById("btnAddCategory").style.display = "initial";
-            document.getElementById("btnUpdateCategory").style.display = "none";
+        if (newCategory && (oldCategory != newCategory)) {
+            document.getElementById('btnCategoryNext').style.display = 'initial';
+            document.getElementById('btnAddCategory').style.display = 'initial';
+            document.getElementById('btnUpdateCategory').style.display = 'none';
         }
     });
     
     $(".i-btn-item").click(function () {
         var newItem = document.getElementById('inputItemName').value;
-        if (newItem && oldItem != newItem) {
-            document.getElementById("btnSubmit").style.display = "initial";
-            document.getElementById("btnAddItem").style.display = "initial";
-            document.getElementById("btnUpdateItem").style.display = "none";
+        console.log('btn item clicked');
+        if (newItem && (oldItem != newItem)) {
+            //if (btnSubmit == 'none') {
+            //    btnSubmit.style.display = 'initial';
+            //}
+            document.getElementById('btnSubmit').style.display = 'initial';
+            console.log('display submit');
+            document.getElementById('btnAddItem').style.display = 'initial';
+            document.getElementById('btnUpdateItem').style.display = 'none';
         }
     });
 
@@ -561,32 +578,6 @@
             alert("DEBUG: button with ID '" + buttonId + "' does not exist");
         }
     }
-    
-    //$("#btnAddWorkplace").click(function () {
-    //    $(".i-workplace-btn").trigger('click');
-    //});
-    
-    //$("#btnUpdateWorkplace").click(function () {
-    //    $(".i-workplace-btn").trigger('click');
-    //});
-
-    //$(".i-edit-btn").click(function() {
-    //    var $itemName = $(this).closest("tr")   // Finds the closest row <tr> 
-    //                       .find(".i-itemName")     // Gets a descendent with class="nr"
-    //                       .text();         // Retrieves the text within <td>
-
-    //    $("#lblOutput").text($itemName);       // Outputs the answer
-    //});
-
-    $(".i-upload-icon").click(function () {
-        $(".i-fileUpload").trigger('click');
-    });
-    
-    var loadFile = function(event) {
-	    var image = document.getElementById('imgItem');
-	    image.src = URL.createObjectURL(event.target.files[0]);
-    };
-
     var pageTracker = 1;
     console.log(pageTracker);
 
@@ -610,22 +601,6 @@
                 $(".r-backBtn").trigger('click');
             }
         }
-    });
-
-    //Switch tab
-
-    $(document).one('ready', function () {
-        //switch (pageTracker) {
-        //    case 2:
-        //        $("i-next-btn").trigger('click');
-        //        break;
-        //    case 3:
-        //        $("i-next-btn").trigger('click');
-        //        $("i-next-btn").trigger('click');
-        //        break;
-        //    default:
-        //        break;
-        //}
     });
 
     $(document).ready(function () {
@@ -700,32 +675,5 @@
             return false;
         })
     });
-
-    // JavaScript for disabling form submissions if there are invalid fields
-    // Self-executing function
-    //(function() {
-    //    'use strict';
-    //    window.addEventListener('load', function() {
-    //        // Fetch all the forms we want to apply custom Bootstrap validation styles to
-    //        var forms = document.getElementsByClassName('needs-validation');
-    //        // Loop over them and prevent submission
-    //        var validation = Array.prototype.filter.call(forms, function(form) {
-    //            form.addEventListener('submit', function(event) {
-    //                if (form.checkValidity() === false) {
-    //                    event.preventDefault();
-    //                    event.stopPropagation();
-    //                }
-    //                form.classList.add('was-validated');
-    //                //$("#nextStep").trigger("click");
-    //            }, false);
-    //        });
-    //    }, false);
-    //})();
-    
-    //function dohtmlvalidation(sender, args) {
-    //    if ($("#inputEmail").val() == "") {
-    //        args.IsValid = false;
-    //    }
-    //}
 </script>
 </html>
