@@ -11,21 +11,21 @@ using System.Configuration;
 
 namespace QR_Menu_Designer
 {
-    public partial class ViewMenu : System.Web.UI.Page
+    public partial class ViewMenu2 : System.Web.UI.Page
     {
         protected void Page_Load(object sender, EventArgs e)
         {
+            //lblTitle.Text = "Fragance <br /> Nasi Lemak";
             Session["Username"] = "test1";
             SqlConnection conDisplayMenu = new SqlConnection(ConfigurationManager.ConnectionStrings["connectionString"].ConnectionString);
 
-            if(String.IsNullOrEmpty(Session["MenuID"] as string))
+            if (String.IsNullOrEmpty(Session["MenuID"] as string))
             {
                 string sqlDisplayMenu = "SELECT WorkplaceName, ItemCategory, min(ItemID) as MinID FROM MenuDetails WHERE MenuID IS NULL AND Username = @Username GROUP BY WorkplaceName, ItemCategory ORDER BY min(ItemID) ASC"; //ORDER BY ItemID
                 SqlCommand cmdDisplayMenu = new SqlCommand(sqlDisplayMenu, conDisplayMenu);
                 cmdDisplayMenu.Parameters.AddWithValue("@Username", Session["Username"].ToString());
 
                 conDisplayMenu.Open();
-
                 SqlDataReader readDisplayMenu = cmdDisplayMenu.ExecuteReader();
                 while (readDisplayMenu.Read())
                 {
@@ -38,6 +38,18 @@ namespace QR_Menu_Designer
                 {
                     rptCategory.DataSource = readDisplayMenu;
                     rptCategory.DataBind();
+                }
+                conDisplayMenu.Close();
+
+                string sqlDisplayImg = "SELECT ItemImage, min(ItemID) as MinID FROM MenuDetails WHERE ItemImage IS NOT NULL AND MenuID IS NULL AND Username = @Username GROUP BY ItemImage ORDER BY min(ItemID) ASC";
+                SqlCommand cmdDisplayImg = new SqlCommand(sqlDisplayImg, conDisplayMenu);
+                cmdDisplayImg.Parameters.AddWithValue("@Username", Session["Username"].ToString());
+
+                conDisplayMenu.Open();
+                using (SqlDataReader readDisplayImg = cmdDisplayImg.ExecuteReader())
+                {
+                    rptImg.DataSource = readDisplayImg;
+                    rptImg.DataBind();
                 }
                 conDisplayMenu.Close();
             }
@@ -60,6 +72,19 @@ namespace QR_Menu_Designer
                 {
                     rptCategory.DataSource = readDisplayMenu;
                     rptCategory.DataBind();
+                }
+                conDisplayMenu.Close();
+
+                string sqlDisplayImg = "SELECT ItemImage, min(ItemID) as MinID FROM MenuDetails WHERE ItemImage IS NOT NULL AND MenuID = @MenuID AND Username = @Username GROUP BY ItemImage ORDER BY min(ItemID) ASC";
+                SqlCommand cmdDisplayImg = new SqlCommand(sqlDisplayImg, conDisplayMenu);
+                cmdDisplayMenu.Parameters.AddWithValue("@MenuID", Session["MenuID"].ToString());
+                cmdDisplayImg.Parameters.AddWithValue("@Username", Session["Username"].ToString());
+
+                conDisplayMenu.Open();
+                using (SqlDataReader readDisplayImg = cmdDisplayImg.ExecuteReader())
+                {
+                    rptImg.DataSource = readDisplayImg;
+                    rptImg.DataBind();
                 }
                 conDisplayMenu.Close();
             }

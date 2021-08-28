@@ -1,4 +1,4 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="ViewMenu.aspx.cs" Inherits="QR_Menu_Designer.ViewMenu" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="ViewMenu.aspx.cs" Inherits="QR_Menu_Designer.ViewMenu" %>
 
 <!DOCTYPE html>
 
@@ -121,11 +121,10 @@
             <div class="r-form">
                 <div class="vm-menu">
                     <div class="vm-menu-title-div text-center">
-                        <asp:Label ID="lblTitle" CssClass="vm-menu-title" runat="server" Text='<%#Eval("WorkplaceName") %>'></asp:Label>
+                        <asp:Label ID="lblTitle" CssClass="vm-menu-title" runat="server"></asp:Label>
                     </div>
                     <hr class="vm-menu-title-hr" />
                     <div class="vm-menu-content-div">
-                        
                         <div class="table-wrapper-scroll-y my-custom-scrollbar">
                             <asp:Repeater ID="rptCategory" runat="server" OnItemDataBound="rptCategory_ItemDataBound">
                                 <HeaderTemplate>
