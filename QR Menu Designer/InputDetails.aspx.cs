@@ -8,17 +8,19 @@ using System.IO;
 using System.Data;
 using System.Data.SqlClient;
 using System.Configuration;
+using System.Web.UI.HtmlControls;
 
 namespace QR_Menu_Designer
 {
     public partial class InputDetails : System.Web.UI.Page
     {
-        class Variable{
+        class Variable
+        {
             public static string strWorkplace;
             public static string currCategory;
             public static string currItem;
+            public static string imgPath;
         }
-
         protected void Page_Load(object sender, EventArgs e)
         {
             Session["Username"] = "test1";
@@ -36,6 +38,7 @@ namespace QR_Menu_Designer
                 Variable.strWorkplace = "";
                 Variable.currCategory = "";
                 Variable.currItem = "";
+                Variable.imgPath = "";
 
                 SqlConnection conWorkplace = new SqlConnection(ConfigurationManager.ConnectionStrings["connectionString"].ConnectionString);
 
@@ -86,6 +89,29 @@ namespace QR_Menu_Designer
                     LoadCategory();
                     LoadItem();
                 }
+            }
+        }
+        public string sPath;    //path to the product's picture
+
+        public string PicturePath(string sFilename)
+        {
+            if (String.IsNullOrEmpty(sFilename))
+            {
+                sFilename = @"uploaded/empty.jpg";
+            }
+            return sFilename;
+        }
+        protected void AsyncFileUpload1_UploadedComplete(object sender, AjaxControlToolkit.AsyncFileUploadEventArgs e)
+        {
+            string strPath = MapPath("uploaded/") + Path.GetFileName(e.filename);
+            AsyncFileUpload1.SaveAs(strPath);
+            if (Variable.imgPath != "null")
+            {
+                Variable.imgPath = "uploaded/" + Path.GetFileName(e.filename);
+            }
+            else
+            {
+                Variable.imgPath = "";
             }
         }
 
@@ -206,11 +232,28 @@ namespace QR_Menu_Designer
                 SqlCommand cmdDisplayItem = new SqlCommand(sqlDisplayItem, conWorkplace);
                 cmdDisplayItem.Parameters.AddWithValue("@Username", Session["Username"].ToString());
 
-                using (SqlDataReader readItem = cmdDisplayItem.ExecuteReader())
-                {
-                    RptItems.DataSource = readItem;
-                    RptItems.DataBind();
-                }
+                SqlDataReader readItem = cmdDisplayItem.ExecuteReader();
+
+                //while (readItem.Read())
+                //{
+                //    foreach(RepeaterItem item in RptItems.Items)
+                //    {
+                //        if (!String.IsNullOrEmpty(readItem["ItemImage"].ToString()))
+                //        {
+                //            (item.FindControl("imgItemDisplay") as HtmlImage).Src = readItem["ItemImage"].ToString();
+                //        }
+                //        else
+                //        {
+                //            (item.FindControl("imgItemDisplay") as HtmlImage).Src = "uploaded/empty.jpg";
+                //        }
+                //    }
+                //}
+                //conWorkplace.Close();
+
+                //conWorkplace.Open();
+                //readItem = cmdDisplayItem.ExecuteReader();
+                RptItems.DataSource = readItem;
+                RptItems.DataBind();
                 conWorkplace.Close();
             }
             else
@@ -221,14 +264,91 @@ namespace QR_Menu_Designer
                 cmdDisplayItem.Parameters.AddWithValue("@MenuID", Session["MenuID"].ToString());
                 cmdDisplayItem.Parameters.AddWithValue("@Username", Session["Username"].ToString());
 
-                using (SqlDataReader readItem = cmdDisplayItem.ExecuteReader())
-                {
-                    RptItems.DataSource = readItem;
-                    RptItems.DataBind();
-                }
+                SqlDataReader readItem = cmdDisplayItem.ExecuteReader();
+
+                //while (readItem.Read())
+                //{
+                //    foreach (RepeaterItem item in RptItems.Items)
+                //    {
+                //        if (!String.IsNullOrEmpty(readItem["ItemImage"].ToString()))
+                //        {
+                //            (item.FindControl("imgItemDisplay") as HtmlImage).Src = readItem["ItemImage"].ToString();
+                //        }
+                //        else
+                //        {
+                //            (item.FindControl("imgItemDisplay") as HtmlImage).Src = "uploaded/empty.jpg";
+                //        }
+                //    }
+                //}
+                //conWorkplace.Close();
+
+                //conWorkplace.Open();
+                //readItem = cmdDisplayItem.ExecuteReader();
+                RptItems.DataSource = readItem;
+                RptItems.DataBind();
                 conWorkplace.Close();
+                //using (SqlDataReader readItem = cmdDisplayItem.ExecuteReader())
+                //{
+                //    RptItems.DataSource = readItem;
+                //    RptItems.DataBind();
+                //    conWorkplace.Close();
+                //}
             }
         }
+
+        //protected void rptCategory_ItemDataBound(object sender, RepeaterItemEventArgs e)
+        //{
+        //    SqlConnection conDisplayItem = new SqlConnection(ConfigurationManager.ConnectionStrings["connectionString"].ConnectionString);
+
+        //    if (e.Item.ItemType == ListItemType.AlternatingItem || e.Item.ItemType == ListItemType.Item) // e.Item.DataItem != null
+        //    {
+        //        if (String.IsNullOrEmpty(Session["MenuID"] as string)) //draft menu
+        //        {
+        //            string sqlDisplayItem = "SELECT ItemCategory, ItemName, ItemImage, min(ItemID) as MinID FROM MenuDetails WHERE ItemName IS NOT NULL AND MenuID IS NULL AND Username = @Username GROUP BY ItemName, ItemCategory, ItemImage ORDER BY min(ItemID) ASC";
+        //            SqlCommand cmdDisplayItem = new SqlCommand(sqlDisplayItem, conDisplayItem);
+        //            cmdDisplayItem.Parameters.AddWithValue("@Username", Session["Username"].ToString());
+        //            conDisplayItem.Open();
+        //            using (SqlDataReader readDisplayItem = cmdDisplayItem.ExecuteReader())
+        //            {
+        //                while (readDisplayItem.Read())
+        //                {
+        //                    if (!String.IsNullOrEmpty(readDisplayItem["ItemImage"].ToString()))
+        //                    {
+        //                        (e.Item.FindControl("imgItemDisplay") as HtmlImage).Src = readDisplayItem["ItemImage"].ToString();
+        //                    }
+        //                    else
+        //                    {
+        //                        (e.Item.FindControl("imgItemDisplay") as HtmlImage).Src = "uploaded/empty.jpg";
+        //                    }
+        //                }
+        //            }
+        //            conDisplayItem.Close();
+        //        }
+        //        else // existing menu
+        //        {
+        //            string sqlDisplayItem = "SELECT ItemCategory, ItemName, ItemImage, min(ItemID) as MinID FROM MenuDetails WHERE ItemName IS NOT NULL AND MenuID = @MenuID AND Username = @Username GROUP BY ItemName, ItemCategory, ItemImage ORDER BY min(ItemID) ASC";
+        //            SqlCommand cmdDisplayItem = new SqlCommand(sqlDisplayItem, conDisplayItem);
+        //            cmdDisplayItem.Parameters.AddWithValue("@MenuID", Session["MenuID"].ToString());
+        //            cmdDisplayItem.Parameters.AddWithValue("@Username", Session["Username"].ToString());
+        //            conDisplayItem.Open();
+        //            using (SqlDataReader readDisplayItem = cmdDisplayItem.ExecuteReader())
+        //            {
+        //                while (readDisplayItem.Read())
+        //                {
+        //                    if (!String.IsNullOrEmpty(readDisplayItem["ItemImage"].ToString()))
+        //                    {
+        //                        (e.Item.FindControl("imgItemDisplay") as HtmlImage).Src = readDisplayItem["ItemImage"].ToString();
+        //                    }
+        //                    else
+        //                    {
+        //                        (e.Item.FindControl("imgItemDisplay") as HtmlImage).Src = "uploaded/empty.jpg";
+        //                    }
+        //                }
+        //            }
+        //            conDisplayItem.Close();
+        //        }
+        //    }
+        //}
 
         protected void ReturnPrev(object sender, EventArgs e)
         {
@@ -704,26 +824,27 @@ namespace QR_Menu_Designer
                         if (readCategoryItemIsNull.HasRows) //Existing itemId where itemname is null
                         {
                             conAddItem.Close();
-                            if (ImageUpload.HasFile) //with image
+                            if (!String.IsNullOrEmpty(Variable.imgPath)) //with image
                             {
-                                byte[] bytes;
-                                using (BinaryReader br = new BinaryReader(ImageUpload.PostedFile.InputStream))
-                                {
-                                    bytes = br.ReadBytes(ImageUpload.PostedFile.ContentLength);
-                                }
+                                //byte[] bytes;
+                                //using (BinaryReader br = new BinaryReader(ImageUpload.PostedFile.InputStream))
+                                //{
+                                //    bytes = br.ReadBytes(ImageUpload.PostedFile.ContentLength);
+                                //}
                                 string sqlAddItemToCurrWithImage = "UPDATE MenuDetails SET ItemName = @ItemName, Price = @Price, ItemImage = @ItemtImage WHERE ItemCategory = @Category AND ItemName IS NULL AND MenuID IS NULL AND Username = @Username";
                                 using (SqlCommand cmdAddItemToCurrWithImage = new SqlCommand(sqlAddItemToCurrWithImage, conAddItem))
                                 {
                                     cmdAddItemToCurrWithImage.Parameters.AddWithValue("@ItemName", inputItemName.Value);
                                     cmdAddItemToCurrWithImage.Parameters.AddWithValue("@Price", inputPrice.Value);
-                                    cmdAddItemToCurrWithImage.Parameters.AddWithValue("@ItemImage", bytes);
+                                    cmdAddItemToCurrWithImage.Parameters.AddWithValue("@ItemImage", Variable.imgPath);
                                     cmdAddItemToCurrWithImage.Parameters.AddWithValue("@Category", selectedCategory.ToString());
                                     cmdAddItemToCurrWithImage.Parameters.AddWithValue("@Username", Session["Username"].ToString());
                                     conAddItem.Open();
                                     cmdAddItemToCurrWithImage.ExecuteNonQuery();
                                     conAddItem.Close();
+                                    Variable.imgPath = "null";
                                 }
-                                Response.Redirect(Request.Url.AbsoluteUri);
+                                //Response.Redirect(Request.Url.AbsoluteUri);
                             }
                             else //without image
                             {
@@ -741,27 +862,28 @@ namespace QR_Menu_Designer
                         else //New ItemID
                         {
                             conAddItem.Close();
-                            if (ImageUpload.HasFile) //with image
+                            if (!String.IsNullOrEmpty(Variable.imgPath)) //with image
                             {
-                                byte[] bytes;
-                                using (BinaryReader br = new BinaryReader(ImageUpload.PostedFile.InputStream))
-                                {
-                                    bytes = br.ReadBytes(ImageUpload.PostedFile.ContentLength);
-                                }
-                                string sqlAddItemToNewWithImage = "INSERT INTO MenuDetails (WorkplaceName, ItemCategory, ItemName, Price, ItemImage, Username) VALUES (@Workplace, @Category, @ItemName, @Price, @ItemtImage, @Username)";
+                                //byte[] bytes;
+                                //using (BinaryReader br = new BinaryReader(ImageUpload.PostedFile.InputStream))
+                                //{
+                                //    bytes = br.ReadBytes(ImageUpload.PostedFile.ContentLength);
+                                //}
+                                string sqlAddItemToNewWithImage = "INSERT INTO MenuDetails (WorkplaceName, ItemCategory, ItemName, Price, ItemImage, Username) VALUES (@Workplace, @Category, @ItemName, @Price, @ItemImage, @Username)";
                                 using (SqlCommand cmdAddItemToNewWithImage = new SqlCommand(sqlAddItemToNewWithImage, conAddItem))
                                 {
                                     cmdAddItemToNewWithImage.Parameters.AddWithValue("@Workplace", Variable.strWorkplace);
                                     cmdAddItemToNewWithImage.Parameters.AddWithValue("@Category", selectedCategory.ToString());
                                     cmdAddItemToNewWithImage.Parameters.AddWithValue("@ItemName", inputItemName.Value);
                                     cmdAddItemToNewWithImage.Parameters.AddWithValue("@Price", inputPrice.Value);
-                                    cmdAddItemToNewWithImage.Parameters.AddWithValue("@ItemImage", bytes);
+                                    cmdAddItemToNewWithImage.Parameters.AddWithValue("@ItemImage", Variable.imgPath);
                                     cmdAddItemToNewWithImage.Parameters.AddWithValue("@Username", Session["Username"].ToString());
                                     conAddItem.Open();
                                     cmdAddItemToNewWithImage.ExecuteNonQuery();
                                     conAddItem.Close();
+                                    Variable.imgPath = "null";
                                 }
-                                Response.Redirect(Request.Url.AbsoluteUri);
+                                //Response.Redirect(Request.Url.AbsoluteUri);
                             }
                             else // without image
                             {
@@ -810,19 +932,19 @@ namespace QR_Menu_Designer
                         if (readCategoryItemIsNull.HasRows) //Existing itemId where itemname is null
                         {
                             conAddItem.Close();
-                            if (ImageUpload.HasFile) //with image
+                            if (!String.IsNullOrEmpty(Variable.imgPath)) //with image
                             {
-                                byte[] bytes;
-                                using (BinaryReader br = new BinaryReader(ImageUpload.PostedFile.InputStream))
-                                {
-                                    bytes = br.ReadBytes(ImageUpload.PostedFile.ContentLength);
-                                }
+                                //byte[] bytes;
+                                //using (BinaryReader br = new BinaryReader(ImageUpload.PostedFile.InputStream))
+                                //{
+                                //    bytes = br.ReadBytes(ImageUpload.PostedFile.ContentLength);
+                                //}
                                 string sqlAddItemToCurrWithImage = "UPDATE MenuDetails SET ItemName = @ItemName, Price = @Price, ItemImage = @ItemtImage WHERE ItemCategory = @Category AND ItemName IS NULL AND MenuID = @MenuID AND Username = @Username";
                                 using (SqlCommand cmdAddItemToCurrWithImage = new SqlCommand(sqlAddItemToCurrWithImage, conAddItem))
                                 {
                                     cmdAddItemToCurrWithImage.Parameters.AddWithValue("@ItemName", inputItemName.Value);
                                     cmdAddItemToCurrWithImage.Parameters.AddWithValue("@Price", inputPrice.Value);
-                                    cmdAddItemToCurrWithImage.Parameters.AddWithValue("@ItemImage", bytes);
+                                    cmdAddItemToCurrWithImage.Parameters.AddWithValue("@ItemImage", Variable.imgPath);
                                     cmdAddItemToCurrWithImage.Parameters.AddWithValue("@Category", selectedCategory.ToString());
                                     cmdAddItemToCurrWithImage.Parameters.AddWithValue("@MenuID", Session["MenuID"].ToString());
                                     cmdAddItemToCurrWithImage.Parameters.AddWithValue("@Username", Session["Username"].ToString());
@@ -830,7 +952,7 @@ namespace QR_Menu_Designer
                                     cmdAddItemToCurrWithImage.ExecuteNonQuery();
                                     conAddItem.Close();
                                 }
-                                Response.Redirect(Request.Url.AbsoluteUri);
+                                //Response.Redirect(Request.Url.AbsoluteUri);
                             }
                             else //without image
                             {
@@ -849,13 +971,13 @@ namespace QR_Menu_Designer
                         else //New ItemID
                         {
                             conAddItem.Close();
-                            if (ImageUpload.HasFile) //with image
+                            if (!String.IsNullOrEmpty(Variable.imgPath)) //with image
                             {
-                                byte[] bytes;
-                                using (BinaryReader br = new BinaryReader(ImageUpload.PostedFile.InputStream))
-                                {
-                                    bytes = br.ReadBytes(ImageUpload.PostedFile.ContentLength);
-                                }
+                                //byte[] bytes;
+                                //using (BinaryReader br = new BinaryReader(ImageUpload.PostedFile.InputStream))
+                                //{
+                                //    bytes = br.ReadBytes(ImageUpload.PostedFile.ContentLength);
+                                //}
                                 string sqlAddItemToNewWithImage = "INSERT INTO MenuDetails (WorkplaceName, ItemCategory, ItemName, Price, ItemImage, MenuID, Username) VALUES (@Workplace, @Category, @ItemName, @Price, @ItemtImage, @MenuID, @Username)";
                                 using (SqlCommand cmdAddItemToNewWithImage = new SqlCommand(sqlAddItemToNewWithImage, conAddItem))
                                 {
@@ -863,14 +985,15 @@ namespace QR_Menu_Designer
                                     cmdAddItemToNewWithImage.Parameters.AddWithValue("@Category", selectedCategory.ToString());
                                     cmdAddItemToNewWithImage.Parameters.AddWithValue("@ItemName", inputItemName.Value);
                                     cmdAddItemToNewWithImage.Parameters.AddWithValue("@Price", inputPrice.Value);
-                                    cmdAddItemToNewWithImage.Parameters.AddWithValue("@ItemImage", bytes);
+                                    cmdAddItemToNewWithImage.Parameters.AddWithValue("@ItemImage", Variable.imgPath);
                                     cmdAddItemToNewWithImage.Parameters.AddWithValue("@MenuID", Session["MenuID"].ToString());
                                     cmdAddItemToNewWithImage.Parameters.AddWithValue("@Username", Session["Username"].ToString());
                                     conAddItem.Open();
                                     cmdAddItemToNewWithImage.ExecuteNonQuery();
                                     conAddItem.Close();
+                                    Variable.imgPath = "null";
                                 }
-                                Response.Redirect(Request.Url.AbsoluteUri);
+                                //Response.Redirect(Request.Url.AbsoluteUri);
                             }
                             else // without image
                             {
@@ -924,13 +1047,13 @@ namespace QR_Menu_Designer
 
                     if (count == 0)
                     {
-                        if (ImageUpload.HasFile)
+                        if (!String.IsNullOrEmpty(Variable.imgPath))
                         {
-                            byte[] bytes;
-                            using (BinaryReader br = new BinaryReader(ImageUpload.PostedFile.InputStream))
-                            {
-                                bytes = br.ReadBytes(ImageUpload.PostedFile.ContentLength);
-                            }
+                            //byte[] bytes;
+                            //using (BinaryReader br = new BinaryReader(ImageUpload.PostedFile.InputStream))
+                            //{
+                            //    bytes = br.ReadBytes(ImageUpload.PostedFile.ContentLength);
+                            //}
                             string sqlUpdateItemWithImage = "UPDATE MenuDetails SET ItemCategory = @Category, ItemName = @NewItem, Price = @Price, ItemImage = @ItemImage WHERE ItemName = @CurrItem AND MenuID IS NULL AND Username = @Username";
                             using (SqlCommand cmdUpdateItemWithImage = new SqlCommand(sqlUpdateItemWithImage, conUpdateItem))
                             {
@@ -938,14 +1061,15 @@ namespace QR_Menu_Designer
                                 cmdUpdateItemWithImage.Parameters.AddWithValue("@Category", selectedCategory.ToString());
                                 cmdUpdateItemWithImage.Parameters.AddWithValue("@NewItem", inputItemName.Value);
                                 cmdUpdateItemWithImage.Parameters.AddWithValue("@Price", inputPrice.Value);
-                                cmdUpdateItemWithImage.Parameters.AddWithValue("@ItemImage", bytes);
+                                cmdUpdateItemWithImage.Parameters.AddWithValue("@ItemImage", Variable.imgPath);
                                 cmdUpdateItemWithImage.Parameters.AddWithValue("@CurrItem", Variable.currItem);
                                 cmdUpdateItemWithImage.Parameters.AddWithValue("@Username", Session["Username"].ToString());
                                 conUpdateItem.Open();
                                 cmdUpdateItemWithImage.ExecuteNonQuery();
                                 conUpdateItem.Close();
+                                Variable.imgPath = "null";
                             }
-                            Response.Redirect(Request.Url.AbsoluteUri);
+                            //Response.Redirect(Request.Url.AbsoluteUri);
                         }
                         else
                         {
@@ -982,13 +1106,13 @@ namespace QR_Menu_Designer
 
                     if (count == 0)
                     {
-                        if (ImageUpload.HasFile)
+                        if (!String.IsNullOrEmpty(Variable.imgPath))
                         {
-                            byte[] bytes;
-                            using (BinaryReader br = new BinaryReader(ImageUpload.PostedFile.InputStream))
-                            {
-                                bytes = br.ReadBytes(ImageUpload.PostedFile.ContentLength);
-                            }
+                            //byte[] bytes;
+                            //using (BinaryReader br = new BinaryReader(ImageUpload.PostedFile.InputStream))
+                            //{
+                            //    bytes = br.ReadBytes(ImageUpload.PostedFile.ContentLength);
+                            //}
                             string sqlUpdateItemWithImage = "UPDATE MenuDetails SET ItemCategory = @Category, ItemName = @NewItem, Price = @Price, ItemImage = @ItemImage WHERE ItemName = @CurrItem AND MenuID = @MenuID AND Username = @Username";
                             using (SqlCommand cmdUpdateItemWithImage = new SqlCommand(sqlUpdateItemWithImage, conUpdateItem))
                             {
@@ -996,15 +1120,16 @@ namespace QR_Menu_Designer
                                 cmdUpdateItemWithImage.Parameters.AddWithValue("@Category", selectedCategory.ToString());
                                 cmdUpdateItemWithImage.Parameters.AddWithValue("@NewItem", inputItemName.Value);
                                 cmdUpdateItemWithImage.Parameters.AddWithValue("@Price", inputPrice.Value);
-                                cmdUpdateItemWithImage.Parameters.AddWithValue("@ItemImage", bytes);
+                                cmdUpdateItemWithImage.Parameters.AddWithValue("@ItemImage", Variable.imgPath);
                                 cmdUpdateItemWithImage.Parameters.AddWithValue("@CurrItem", Variable.currItem);
                                 cmdUpdateItemWithImage.Parameters.AddWithValue("@MenuID", Session["MenuID"].ToString());
                                 cmdUpdateItemWithImage.Parameters.AddWithValue("@Username", Session["Username"].ToString());
                                 conUpdateItem.Open();
                                 cmdUpdateItemWithImage.ExecuteNonQuery();
                                 conUpdateItem.Close();
+                                Variable.imgPath = "null";
                             }
-                            Response.Redirect(Request.Url.AbsoluteUri);
+                            //Response.Redirect(Request.Url.AbsoluteUri);
                         }
                         else
                         {
